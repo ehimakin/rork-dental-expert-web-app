@@ -80,7 +80,6 @@ export default function NewConsultationScreen() {
     setIsSubmitting(true);
     try {
       await createConsultation({
-        clientId: user?.id || '',
         clientName: formData.clientName,
         clientEmail: formData.clientEmail,
         clientPhone: formData.clientPhone,
