@@ -7,7 +7,7 @@ export default publicProcedure
     z.object({
       id: z.string(),
       status: z.enum(["pending", "scheduled", "completed", "cancelled"]),
-      scheduledDate: z.date().optional(),
+      scheduledDate: z.string().optional(),
     })
   )
   .mutation(({ input }) => {
@@ -19,10 +19,14 @@ export default publicProcedure
 
     consultation.status = input.status;
     if (input.scheduledDate) {
-      consultation.scheduledDate = input.scheduledDate;
+      consultation.scheduledDate = new Date(input.scheduledDate);
     }
 
-    console.log("Updated consultation:", consultation.id, "to", input.status);
+    console.log("✅ Updated consultation:", consultation.id, "to", input.status);
 
-    return consultation;
+    return {
+      ...consultation,
+      createdAt: consultation.createdAt.toISOString(),
+      scheduledDate: consultation.scheduledDate ? consultation.scheduledDate.toISOString() : undefined,
+    };
   });

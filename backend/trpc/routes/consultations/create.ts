@@ -44,13 +44,16 @@ export default publicProcedure
       ...input,
       id: Date.now().toString() + Math.random().toString(36).substr(2, 9),
       status: "pending" as const,
-      createdAt: new Date(),
+      createdAt: new Date().toISOString(),
     };
 
-    consultations.push(newConsultation);
+    consultations.push({
+      ...newConsultation,
+      createdAt: new Date(),
+    } as any);
 
-    console.log("Created consultation:", newConsultation.id);
-    console.log("Total consultations:", consultations.length);
+    console.log("✅ Created consultation:", newConsultation.id);
+    console.log("📊 Total consultations:", consultations.length);
 
     return newConsultation;
   });

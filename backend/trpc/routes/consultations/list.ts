@@ -26,7 +26,11 @@ export default publicProcedure
 
     filtered.sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime());
 
-    console.log("Listing consultations:", filtered.length);
+    console.log("📊 Listing consultations:", filtered.length);
 
-    return filtered;
+    return filtered.map(c => ({
+      ...c,
+      createdAt: c.createdAt.toISOString(),
+      scheduledDate: c.scheduledDate ? c.scheduledDate.toISOString() : undefined,
+    }));
   });

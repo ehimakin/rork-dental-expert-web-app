@@ -48,7 +48,11 @@ export const [ConsultationsProvider, useConsultations] = createContextHook(() =>
 
   const updateConsultationStatus = useCallback(async (id: string, status: ConsultationStatus, scheduledDate?: Date) => {
     console.log('Updating consultation status:', id, status);
-    await updateStatusMutation.mutateAsync({ id, status, scheduledDate });
+    await updateStatusMutation.mutateAsync({ 
+      id, 
+      status, 
+      scheduledDate: scheduledDate ? scheduledDate.toISOString() : undefined 
+    });
   }, [updateStatusMutation]);
 
   const consultations = useMemo(() => {
