@@ -60,13 +60,29 @@ export default function NewConsultationScreen() {
   };
 
   const handleSubmit = async () => {
-    Alert.alert("I'm gay");
-  };
+    if (!formData.clientName || !formData.clientEmail || !formData.caseDetails) {
+      Alert.alert('Error', 'Please fill in all required fields');
+      return;
+    }
 
-  const submitConsultation = async () => {
+    if (!user?.id) {
+      Alert.alert('Error', 'You must be logged in to submit a consultation');
+      return;
+    }
+
     setIsSubmitting(true);
     try {
+      console.log('Submitting consultation with data:', {
+        clientId: user.id,
+        clientName: formData.clientName,
+        clientEmail: formData.clientEmail,
+        clientPhone: formData.clientPhone,
+        caseDetails: formData.caseDetails,
+        documents,
+      });
+
       await createConsultation({
+        clientId: user.id,
         clientName: formData.clientName,
         clientEmail: formData.clientEmail,
         clientPhone: formData.clientPhone,
@@ -87,7 +103,7 @@ export default function NewConsultationScreen() {
     } catch (error) {
       console.error('Error submitting consultation:', error);
       Alert.alert('Error',
-    `Failed to submit consultation: ${error.message || error.toString()}`);
+        `Failed to submit consultation: ${error instanceof Error ? error.message : String(error)}`);
     } finally {
       setIsSubmitting(false);
     }
