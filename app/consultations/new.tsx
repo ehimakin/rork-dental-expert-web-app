@@ -102,8 +102,19 @@ export default function NewConsultationScreen() {
       );
     } catch (error) {
       console.error('Error submitting consultation:', error);
-      Alert.alert('Error',
-        `Failed to submit consultation: ${error instanceof Error ? error.message : String(error)}`);
+      
+      let errorMessage = 'Unknown error occurred';
+      
+      if (error instanceof Error) {
+        errorMessage = error.message;
+        
+        if (error.message.includes('Failed to fetch')) {
+          errorMessage = 'Cannot connect to server. Please check:\n\n1. Backend is running\n2. Network connection is active\n3. API URL is configured correctly\n\nCheck console for details.';
+        }
+      }
+      
+      console.error('Full error details:', JSON.stringify(error, null, 2));
+      Alert.alert('Error', `Failed to submit consultation:\n\n${errorMessage}`);
     } finally {
       setIsSubmitting(false);
     }
