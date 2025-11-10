@@ -99,7 +99,7 @@ export default function NewConsultationScreen() {
       );
     } catch (error) {
       console.error('Error submitting consultation:', error);
-      Alert.alert('Error', 'Failed to submit consultation. Please try again.');
+      Alert.alert(error, 'Failed to submit consultation. Please try again.');
     } finally {
       setIsSubmitting(false);
     }
