@@ -1,0 +1,20 @@
+export default {
+  primary: '#0A7EA4' as const,
+  primaryDark: '#085F7E' as const,
+  secondary: '#34D399' as const,
+  background: '#F8FAFC' as const,
+  surface: '#FFFFFF' as const,
+  text: '#1E293B' as const,
+  textSecondary: '#64748B' as const,
+  textLight: '#94A3B8' as const,
+  border: '#E2E8F0' as const,
+  error: '#EF4444' as const,
+  success: '#10B981' as const,
+  warning: '#F59E0B' as const,
+  info: '#3B82F6' as const,
+  
+  statusPending: '#F59E0B' as const,
+  statusScheduled: '#3B82F6' as const,
+  statusCompleted: '#10B981' as const,
+  statusCancelled: '#EF4444' as const,
+};
