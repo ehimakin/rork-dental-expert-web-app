@@ -1,68 +1,60 @@
-import AsyncStorage from '@react-native-async-storage/async-storage';
 import createContextHook from '@nkzw/create-context-hook';
-import { useState, useEffect, useCallback, useMemo } from 'react';
-import type { Consultation, ConsultationStatus } from '../types';
+import { useCallback, useMemo } from 'react';
+import type { ConsultationStatus } from '../types';
 import { useAuth } from './AuthContext';
-
-const CONSULTATIONS_STORAGE_KEY = 'dental_consultations';
+import { trpc } from '@/lib/trpc';
 
 export const [ConsultationsProvider, useConsultations] = createContextHook(() => {
   const { user } = useAuth();
-  const [consultations, setConsultations] = useState<Consultation[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
-
-  useEffect(() => {
-    loadConsultations();
-  }, []);
-
-  const loadConsultations = async () => {
-    try {
-      const stored = await AsyncStorage.getItem(CONSULTATIONS_STORAGE_KEY);
-      if (stored) {
-        const parsed = JSON.parse(stored);
-        const withDates = parsed.map((c: Consultation) => ({
-          ...c,
-          createdAt: new Date(c.createdAt),
-          scheduledDate: c.scheduledDate ? new Date(c.scheduledDate) : undefined,
-        }));
-        setConsultations(withDates);
-      }
-    } catch (error) {
-      console.error('Failed to load consultations:', error);
-    } finally {
-      setIsLoading(false);
+  
+  const listQuery = trpc.consultations.list.useQuery(
+    user?.role === 'client' ? { clientId: user.id } : undefined,
+    {
+      refetchInterval: 5000,
     }
-  };
+  );
 
-  const saveConsultations = async (newConsultations: Consultation[]) => {
-    try {
-      await AsyncStorage.setItem(CONSULTATIONS_STORAGE_KEY, JSON.stringify(newConsultations));
-      setConsultations(newConsultations);
-    } catch (error) {
-      console.error('Failed to save consultations:', error);
-      throw error;
-    }
-  };
+  const createMutation = trpc.consultations.create.useMutation({
+    onSuccess: () => {
+      listQuery.refetch();
+    },
+  });
 
-  const createConsultation = useCallback(async (consultation: Omit<Consultation, 'id' | 'createdAt' | 'status'>) => {
-    const newConsultation: Consultation = {
-      ...consultation,
-      id: Date.now().toString(),
-      status: 'pending',
-      createdAt: new Date(),
-    };
+  const updateStatusMutation = trpc.consultations.updateStatus.useMutation({
+    onSuccess: () => {
+      listQuery.refetch();
+    },
+  });
 
-    const updated = [...consultations, newConsultation];
-    await saveConsultations(updated);
-    return newConsultation;
-  }, [consultations]);
+  const createConsultation = useCallback(async (consultation: {
+    clientId: string;
+    clientName: string;
+    clientEmail: string;
+    clientPhone?: string;
+    caseDetails: string;
+    documents: {
+      id: string;
+      name: string;
+      uri: string;
+      type: string;
+      size: number;
+    }[];
+  }) => {
+    console.log('Creating consultation:', consultation);
+    const result = await createMutation.mutateAsync(consultation);
+    console.log('Consultation created:', result);
+    return result;
+  }, [createMutation]);
 
   const updateConsultationStatus = useCallback(async (id: string, status: ConsultationStatus, scheduledDate?: Date) => {
-    const updated = consultations.map(c =>
-      c.id === id ? { ...c, status, scheduledDate } : c
-    );
-    await saveConsultations(updated);
-  }, [consultations]);
+    console.log('Updating consultation status:', id, status);
+    await updateStatusMutation.mutateAsync({ id, status, scheduledDate });
+  }, [updateStatusMutation]);
+
+  const consultations = useMemo(() => {
+    if (!listQuery.data) return [];
+    return listQuery.data;
+  }, [listQuery.data]);
 
   const filteredConsultations = useMemo(() => {
     if (!user) return [];
@@ -82,9 +74,9 @@ export const [ConsultationsProvider, useConsultations] = createContextHook(() =>
   return useMemo(() => ({
     consultations: filteredConsultations,
     allConsultations: consultations,
-    isLoading,
+    isLoading: listQuery.isLoading,
     pendingCount,
     createConsultation,
     updateConsultationStatus,
-  }), [filteredConsultations, consultations, isLoading, pendingCount, createConsultation, updateConsultationStatus]);
+  }), [filteredConsultations, consultations, listQuery.isLoading, pendingCount, createConsultation, updateConsultationStatus]);
 });
