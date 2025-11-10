@@ -60,20 +60,7 @@ export default function NewConsultationScreen() {
   };
 
   const handleSubmit = async () => {
-    if (!formData.clientName || !formData.clientEmail || !formData.caseDetails) {
-      Alert.alert('Error', 'Please fill in all required fields');
-      return;
-    }
-
-    if (documents.length === 0) {
-      Alert.alert('Warning', 'No documents attached. Continue anyway?', [
-        { text: 'Cancel', style: 'cancel' },
-        { text: 'Continue', onPress: () => submitConsultation() },
-      ]);
-      return;
-    }
-
-    await submitConsultation();
+    Alert.alert("I'm gay");
   };
 
   const submitConsultation = async () => {
