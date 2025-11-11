@@ -1,17 +1,17 @@
 import { createTRPCRouter } from "./create-context";
-import hiRoute from "./routes/example/hi/route";
-import createConsultation from "./routes/consultations/create";
-import listConsultations from "./routes/consultations/list";
-import updateConsultationStatus from "./routes/consultations/update-status";
+import { hiProcedure } from "./routes/example/hi/route";
+import { createConsultationProcedure } from "./routes/consultations/create";
+import { listConsultationsProcedure } from "./routes/consultations/list";
+import { updateConsultationStatusProcedure } from "./routes/consultations/update-status";
 
 export const appRouter = createTRPCRouter({
   example: createTRPCRouter({
-    hi: hiRoute,
+    hi: hiProcedure,
   }),
   consultations: createTRPCRouter({
-    create: createConsultation,
-    list: listConsultations,
-    updateStatus: updateConsultationStatus,
+    create: createConsultationProcedure,
+    list: listConsultationsProcedure,
+    updateStatus: updateConsultationStatusProcedure,
   }),
 });
 

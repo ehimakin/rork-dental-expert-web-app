@@ -2,7 +2,7 @@ import { z } from "zod";
 import { publicProcedure } from "../../create-context";
 import { consultations } from "./create";
 
-export default publicProcedure
+export const updateConsultationStatusProcedure = publicProcedure
   .input(
     z.object({
       id: z.string(),

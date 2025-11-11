@@ -37,7 +37,7 @@ const consultations: {
   scheduledDate?: Date;
 }[] = [];
 
-export default publicProcedure
+export const createConsultationProcedure = publicProcedure
   .input(createConsultationSchema)
   .mutation(({ input }) => {
     const newConsultation = {
