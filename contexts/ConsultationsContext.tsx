@@ -40,10 +40,19 @@ export const [ConsultationsProvider, useConsultations] = createContextHook(() =>
       size: number;
     }[];
   }) => {
-    console.log('Creating consultation:', consultation);
-    const result = await createMutation.mutateAsync(consultation);
-    console.log('Consultation created:', result);
-    return result;
+    console.log('🟡 Creating consultation with data:', JSON.stringify(consultation, null, 2));
+    try {
+      const result = await createMutation.mutateAsync(consultation);
+      console.log('✅ Consultation created successfully:', result);
+      return result;
+    } catch (error) {
+      console.error('❌ Failed to create consultation:', error);
+      if (error instanceof Error) {
+        console.error('❌ Error message:', error.message);
+        console.error('❌ Error stack:', error.stack);
+      }
+      throw error;
+    }
   }, [createMutation]);
 
   const updateConsultationStatus = useCallback(async (id: string, status: ConsultationStatus, scheduledDate?: Date) => {

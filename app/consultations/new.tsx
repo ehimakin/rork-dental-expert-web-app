@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   View,
   Text,
@@ -21,6 +21,35 @@ export default function NewConsultationScreen() {
   const { user } = useAuth();
   const { createConsultation } = useConsultations();
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [backendStatus, setBackendStatus] = useState<'checking' | 'ok' | 'error'>('checking');
+
+  useEffect(() => {
+    testBackendConnection();
+  }, []);
+
+  const testBackendConnection = async () => {
+    try {
+      console.log('🔍 Testing backend connection...');
+      const baseUrl = process.env.EXPO_PUBLIC_RORK_API_BASE_URL || '';
+      const testUrl = `${baseUrl}/api/health`;
+      console.log('🔍 Test URL:', testUrl);
+      
+      const response = await fetch(testUrl);
+      console.log('🔍 Backend health check response:', response.status);
+      
+      if (response.ok) {
+        const data = await response.json();
+        console.log('✅ Backend is healthy:', data);
+        setBackendStatus('ok');
+      } else {
+        console.error('❌ Backend health check failed:', response.status);
+        setBackendStatus('error');
+      }
+    } catch (error) {
+      console.error('❌ Backend connection test failed:', error);
+      setBackendStatus('error');
+    }
+  };
 
   const [formData, setFormData] = useState({
     clientName: user?.name || '',
@@ -124,6 +153,26 @@ export default function NewConsultationScreen() {
     <>
       <Stack.Screen options={{ title: 'New Consultation Request' }} />
       <ScrollView style={styles.container}>
+        {backendStatus === 'error' && (
+          <View style={styles.warningBanner}>
+            <Text style={styles.warningText}>
+              ⚠️ Backend connection issue detected. Check console logs.
+            </Text>
+            <TouchableOpacity 
+              style={styles.retryButton}
+              onPress={testBackendConnection}
+            >
+              <Text style={styles.retryButtonText}>Retry</Text>
+            </TouchableOpacity>
+          </View>
+        )}
+        {backendStatus === 'ok' && (
+          <View style={styles.successBanner}>
+            <Text style={styles.successText}>
+              ✅ Backend connected successfully
+            </Text>
+          </View>
+        )}
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>Contact Information</Text>
           
@@ -371,5 +420,43 @@ const styles = StyleSheet.create({
     color: Colors.textSecondary,
     textAlign: 'center',
     lineHeight: 18,
+  },
+  warningBanner: {
+    backgroundColor: '#FFF3CD',
+    borderLeftWidth: 4,
+    borderLeftColor: '#FF9800',
+    padding: 16,
+    marginBottom: 12,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+  },
+  warningText: {
+    flex: 1,
+    fontSize: 14,
+    color: '#856404',
+    marginRight: 12,
+  },
+  retryButton: {
+    backgroundColor: '#FF9800',
+    paddingHorizontal: 16,
+    paddingVertical: 8,
+    borderRadius: 6,
+  },
+  retryButtonText: {
+    color: '#FFFFFF',
+    fontSize: 14,
+    fontWeight: '600' as const,
+  },
+  successBanner: {
+    backgroundColor: '#D4EDDA',
+    borderLeftWidth: 4,
+    borderLeftColor: '#28A745',
+    padding: 16,
+    marginBottom: 12,
+  },
+  successText: {
+    fontSize: 14,
+    color: '#155724',
   },
 });
