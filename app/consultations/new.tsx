@@ -31,22 +31,31 @@ export default function NewConsultationScreen() {
     try {
       console.log('🔍 Testing backend connection...');
       const baseUrl = process.env.EXPO_PUBLIC_RORK_API_BASE_URL || '';
+      console.log('🔍 EXPO_PUBLIC_RORK_API_BASE_URL:', process.env.EXPO_PUBLIC_RORK_API_BASE_URL);
+      console.log('🔍 Resolved base URL:', baseUrl);
+      
       const testUrl = `${baseUrl}/api/health`;
-      console.log('🔍 Test URL:', testUrl);
+      console.log('🔍 Full test URL:', testUrl);
+      console.log('🔍 window.location.origin:', typeof window !== 'undefined' ? window.location?.origin : 'N/A');
       
       const response = await fetch(testUrl);
-      console.log('🔍 Backend health check response:', response.status);
+      console.log('🔍 Backend health check response status:', response.status);
+      console.log('🔍 Response headers:', Object.fromEntries(response.headers.entries()));
       
       if (response.ok) {
         const data = await response.json();
         console.log('✅ Backend is healthy:', data);
         setBackendStatus('ok');
       } else {
+        const text = await response.text();
         console.error('❌ Backend health check failed:', response.status);
+        console.error('❌ Response text:', text);
         setBackendStatus('error');
       }
     } catch (error) {
       console.error('❌ Backend connection test failed:', error);
+      console.error('❌ Error type:', error instanceof Error ? error.constructor.name : typeof error);
+      console.error('❌ Error message:', error instanceof Error ? error.message : String(error));
       setBackendStatus('error');
     }
   };

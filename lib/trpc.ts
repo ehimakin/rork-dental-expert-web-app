@@ -10,7 +10,8 @@ const getBaseUrl = () => {
     return process.env.EXPO_PUBLIC_RORK_API_BASE_URL;
   }
 
-  console.log('⚠️ EXPO_PUBLIC_RORK_API_BASE_URL not set, backend will be available at relative path /api');
+  console.log('⚠️ EXPO_PUBLIC_RORK_API_BASE_URL not set');
+  console.log('⚠️ Using empty base URL (same origin)');
   return '';
 };
 
