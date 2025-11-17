@@ -20,7 +20,7 @@ import type { UserRole } from '../types';
 
 export default function AuthScreen() {
   const insets = useSafeAreaInsets();
-  const { login, register } = useAuth();
+  const auth = useAuth();
   const [isLogin, setIsLogin] = useState(true);
   const [isLoading, setIsLoading] = useState(false);
   const [role, setRole] = useState<UserRole>('client');
@@ -45,10 +45,16 @@ export default function AuthScreen() {
 
     setIsLoading(true);
     try {
+      if (!auth || !auth.login || !auth.register) {
+        console.error('Auth context not available');
+        Alert.alert('Error', 'Authentication system not ready');
+        return;
+      }
+
       if (isLogin) {
-        await login(formData.email, formData.password);
+        await auth.login(formData.email, formData.password);
       } else {
-        await register(
+        await auth.register(
           formData.email,
           formData.password,
           formData.name,
@@ -59,6 +65,7 @@ export default function AuthScreen() {
       
       router.replace('/');
     } catch (error) {
+      console.error('Login error:', error);
       Alert.alert('Error', error instanceof Error ? error.message : 'Authentication failed');
     } finally {
       setIsLoading(false);
